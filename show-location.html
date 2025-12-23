@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نمایش موقعیت‌ها</title>
+    <title>موقعیت‌های ذخیره شده</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -81,6 +81,14 @@
             color: #4CAF50;
             margin: 10px 0;
         }
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            margin: 30px 0;
+            border: 2px solid #ddd;
+            overflow: hidden;
+        }
         .locations-container {
             margin-top: 40px;
         }
@@ -126,16 +134,6 @@
             font-size: 1.1rem;
             direction: ltr;
         }
-        .location-details {
-            margin: 15px 0;
-        }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            padding: 5px 0;
-            border-bottom: 1px dashed #eee;
-        }
         .timestamp {
             background: #e3f2fd;
             color: #1976d2;
@@ -144,27 +142,6 @@
             font-size: 0.9rem;
             display: inline-block;
             margin-top: 10px;
-        }
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .action-btn {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .btn-map {
-            background: #4CAF50;
-            color: white;
-        }
-        .btn-copy {
-            background: #2196F3;
-            color: white;
         }
         .loading {
             text-align: center;
@@ -189,33 +166,21 @@
             padding: 60px;
             color: #999;
         }
-        #debug {
-            background: #333;
-            color: white;
-            padding: 15px;
-            margin-top: 30px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
     </style>
+    <!-- Leaflet برای نقشه -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📋 موقعیت‌های ذخیره شده</h1>
-            <p>تمامی موقعیت‌های دریافت شده از کاربران</p>
+            <h1>🌍 موقعیت‌های ذخیره شده</h1>
+            <p>موقعیت‌های دریافتی از کاربران مختلف - ذخیره شده در سرور GitHub</p>
         </header>
         
         <div class="controls">
             <button onclick="loadLocations()" class="btn-primary">
                 🔄 بارگذاری موقعیت‌ها
-            </button>
-            <button onclick="clearAll()" class="btn-danger">
-                🗑️ پاک کردن همه
             </button>
             <a href="index.html" class="btn-secondary">
                 ➕ موقعیت جدید
@@ -228,78 +193,78 @@
                 <div class="stat-number" id="totalCount">0</div>
             </div>
             <div class="stat-card">
-                <div>آخرین موقعیت</div>
-                <div class="stat-number" id="lastTime">-</div>
+                <div>آخرین بروزرسانی</div>
+                <div class="stat-number" id="lastUpdated">-</div>
             </div>
             <div class="stat-card">
                 <div>اولین موقعیت</div>
-                <div class="stat-number" id="firstTime">-</div>
+                <div class="stat-number" id="firstLocation">-</div>
             </div>
         </div>
+        
+        <div id="map"></div>
         
         <div id="locationsList" class="locations-container">
             <div class="loading">
                 <div class="loading-spinner"></div>
-                در حال بارگذاری موقعیت‌ها...
+                در حال بارگذاری موقعیت‌ها از سرور...
             </div>
         </div>
-        
-        <div id="debug"></div>
     </div>
 
     <script>
-        // فعال کردن دیباگ
-        const DEBUG = true;
+        // تنظیمات GitHub
+        const GITHUB_CONFIG = {
+            username: 'YOUR_GITHUB_USERNAME',
+            repo: 'location-tracker',
+            dataFile: 'locations.json'
+        };
         
-        function debugLog(message) {
-            if (DEBUG) {
-                console.log(message);
-                const debugDiv = document.getElementById('debug');
-                if (debugDiv) {
-                    debugDiv.style.display = 'block';
-                    debugDiv.innerHTML += `${new Date().toLocaleTimeString()}: ${message}<br>`;
-                }
-            }
-        }
+        let map = null;
+        let markers = [];
         
-        // بارگذاری موقعیت‌ها از IndexedDB
+        // بارگذاری موقعیت‌ها از GitHub
         async function loadLocations() {
             const locationsList = document.getElementById('locationsList');
             locationsList.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    در حال بارگذاری...
+                    در حال بارگذاری از سرور GitHub...
                 </div>
             `;
             
             try {
-                debugLog('شروع بارگذاری موقعیت‌ها...');
+                // دریافت داده‌ها از GitHub
+                const data = await fetchLocations();
                 
-                // باز کردن دیتابیس
-                const db = await openDatabase();
-                
-                if (!db) {
-                    throw new Error('نمی‌توان دیتابیس را باز کرد');
+                if (!data || !data.locations) {
+                    throw new Error('داده‌ای دریافت نشد');
                 }
                 
-                // دریافت تمام موقعیت‌ها
-                const locations = await getAllLocations(db);
-                debugLog(`تعداد موقعیت‌های دریافتی: ${locations.length}`);
+                console.log('Data loaded:', data.locations.length, 'locations');
                 
                 // به‌روزرسانی آمار
-                updateStats(locations);
+                updateStats(data);
                 
-                // نمایش موقعیت‌ها
-                displayLocations(locations);
+                // نمایش روی نقشه
+                displayOnMap(data.locations);
+                
+                // نمایش در لیست
+                displayLocations(data.locations);
                 
             } catch (error) {
-                debugLog(`❌ خطا در بارگذاری: ${error.message}`);
+                console.error('Error loading locations:', error);
                 
-                // نمایش خطا
                 locationsList.innerHTML = `
                     <div class="empty-state">
-                        <h3>خطا در بارگذاری موقعیت‌ها</h3>
+                        <h3>❌ خطا در بارگذاری موقعیت‌ها</h3>
                         <p>${error.message}</p>
+                        <p>اطمینان حاصل کنید که:</p>
+                        <ul style="text-align: right; list-style: none;">
+                            <li>✅ ریپازیتوری GitHub ایجاد شده است</li>
+                            <li>✅ فایل locations.json در ریپو وجود دارد</li>
+                            <li>✅ ریپازیتوری عمومی (Public) است</li>
+                        </ul>
                         <button onclick="loadLocations()" class="btn-primary">
                             تلاش مجدد
                         </button>
@@ -308,88 +273,104 @@
             }
         }
         
-        // باز کردن دیتابیس
-        function openDatabase() {
-            return new Promise((resolve, reject) => {
-                if (!window.indexedDB) {
-                    reject(new Error('IndexedDB پشتیبانی نمی‌شود'));
-                    return;
-                }
-                
-                const request = indexedDB.open('LocationDB', 1);
-                
-                request.onerror = (event) => {
-                    reject(new Error('خطا در باز کردن دیتابیس: ' + event.target.error));
-                };
-                
-                request.onsuccess = (event) => {
-                    resolve(event.target.result);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    // ایجاد object store اگر وجود ندارد
-                    if (!db.objectStoreNames.contains('locations')) {
-                        db.createObjectStore('locations', {
-                            keyPath: 'id',
-                            autoIncrement: true
-                        });
-                        debugLog('object store جدید ایجاد شد');
-                    }
-                };
-            });
-        }
-        
-        // دریافت تمام موقعیت‌ها
-        function getAllLocations(db) {
-            return new Promise((resolve, reject) => {
-                if (!db.objectStoreNames.contains('locations')) {
-                    resolve([]);
-                    return;
-                }
-                
-                const transaction = db.transaction(['locations'], 'readonly');
-                const store = transaction.objectStore('locations');
-                
-                // دریافت همه رکوردها
-                const request = store.getAll();
-                
-                request.onsuccess = () => {
-                    // مرتب‌سازی بر اساس زمان (جدیدترین اول)
-                    const locations = request.result.sort((a, b) => {
-                        return new Date(b.timestamp) - new Date(a.timestamp);
-                    });
-                    resolve(locations);
-                };
-                
-                request.onerror = (event) => {
-                    reject(new Error('خطا در دریافت داده‌ها: ' + event.target.error));
-                };
-            });
-        }
-        
-        // به‌روزرسانی آمار
-        function updateStats(locations) {
-            document.getElementById('totalCount').textContent = locations.length;
+        // دریافت داده‌ها از GitHub
+        async function fetchLocations() {
+            const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/main/${GITHUB_CONFIG.dataFile}`;
             
-            if (locations.length > 0) {
-                // آخرین موقعیت
-                const last = locations[0];
-                document.getElementById('lastTime').textContent = 
-                    formatTime(last.timestampPersian || last.timestamp);
+            try {
+                const response = await fetch(url + '?t=' + Date.now());
                 
-                // اولین موقعیت
-                const first = locations[locations.length - 1];
-                document.getElementById('firstTime').textContent = 
-                    formatTime(first.timestampPersian || first.timestamp);
-            } else {
-                document.getElementById('lastTime').textContent = '-';
-                document.getElementById('firstTime').textContent = '-';
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+                
+            } catch (error) {
+                console.error('Fetch error:', error);
+                
+                // اگر فایل وجود نداشت، ریپازیتوری جدید است
+                if (error.message.includes('404')) {
+                    return {
+                        locations: [],
+                        lastUpdated: new Date().toISOString(),
+                        totalCount: 0
+                    };
+                }
+                
+                throw error;
             }
         }
         
-        // نمایش موقعیت‌ها
+        // به‌روزرسانی آمار
+        function updateStats(data) {
+            document.getElementById('totalCount').textContent = data.totalCount || data.locations.length;
+            
+            if (data.lastUpdated) {
+                document.getElementById('lastUpdated').textContent = 
+                    formatDate(data.lastUpdated);
+            }
+            
+            if (data.locations.length > 0) {
+                const first = data.locations[data.locations.length - 1];
+                document.getElementById('firstLocation').textContent = 
+                    formatDate(first.timestamp);
+            }
+        }
+        
+        // نمایش روی نقشه
+        function displayOnMap(locations) {
+            const mapElement = document.getElementById('map');
+            
+            // پاک کردن نقشه قبلی
+            if (map) {
+                map.remove();
+                markers.forEach(marker => marker.remove());
+                markers = [];
+            }
+            
+            if (locations.length === 0) {
+                mapElement.innerHTML = '<div style="padding: 50px; text-align: center; color: #666;">موقعیتی برای نمایش وجود ندارد</div>';
+                return;
+            }
+            
+            // ایجاد نقشه جدید
+            const centerLat = locations[0].latitude;
+            const centerLng = locations[0].longitude;
+            
+            map = L.map('map').setView([centerLat, centerLng], locations.length > 1 ? 10 : 15);
+            
+            // اضافه کردن لایه OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // اضافه کردن مارکرها
+            locations.forEach((location, index) => {
+                const marker = L.marker([location.latitude, location.longitude]).addTo(map);
+                
+                marker.bindPopup(`
+                    <div style="text-align: right; direction: rtl;">
+                        <strong>موقعیت ${index + 1}</strong><br>
+                        مختصات: ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}<br>
+                        دقت: ${location.accuracy ? location.accuracy.toFixed(2) + ' متر' : 'نامشخص'}<br>
+                        زمان: ${location.timestampPersian || formatDate(location.timestamp)}
+                    </div>
+                `);
+                
+                markers.push(marker);
+            });
+            
+            // اگر بیش از یک موقعیت داریم، zoom out کنیم
+            if (locations.length > 1) {
+                const bounds = L.latLngBounds(locations.map(loc => [loc.latitude, loc.longitude]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+        
+        // نمایش موقعیت‌ها در لیست
         function displayLocations(locations) {
             const locationsList = document.getElementById('locationsList');
             
@@ -414,7 +395,7 @@
                         <div class="location-header">
                             <div class="location-number">${index + 1}</div>
                             <div style="font-size: 0.9rem; color: #666;">
-                                ${location.deviceId ? location.deviceId.substring(0, 12) + '...' : 'دستگاه ناشناس'}
+                                ${location.deviceInfo ? location.deviceInfo.substring(0, 20) + '...' : 'دستگاه ناشناس'}
                             </div>
                         </div>
                         
@@ -422,30 +403,24 @@
                             ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}
                         </div>
                         
-                        <div class="location-details">
-                            <div class="detail-row">
-                                <span>عرض جغرافیایی:</span>
-                                <span><strong>${location.latitude.toFixed(6)}</strong></span>
-                            </div>
-                            <div class="detail-row">
-                                <span>طول جغرافیایی:</span>
-                                <span><strong>${location.longitude.toFixed(6)}</strong></span>
-                            </div>
-                            <div class="detail-row">
-                                <span>دقت:</span>
-                                <span><strong>${location.accuracy ? location.accuracy.toFixed(2) + ' متر' : 'نامشخص'}</strong></span>
-                            </div>
+                        <div style="margin: 15px 0;">
+                            <div><strong>عرض جغرافیایی:</strong> ${location.latitude.toFixed(6)}</div>
+                            <div><strong>طول جغرافیایی:</strong> ${location.longitude.toFixed(6)}</div>
+                            <div><strong>دقت:</strong> ${location.accuracy ? location.accuracy.toFixed(2) + ' متر' : 'نامشخص'}</div>
+                            <div><strong>IP:</strong> ${location.ip || 'نامشخص'}</div>
                         </div>
                         
                         <div class="timestamp">
-                            📅 ${location.timestampPersian || formatTime(location.timestamp)}
+                            📅 ${location.timestampPersian || formatDate(location.timestamp)}
                         </div>
                         
-                        <div class="actions">
-                            <button class="action-btn btn-map" onclick="viewOnMap(${location.latitude}, ${location.longitude})">
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button onclick="viewOnMap(${location.latitude}, ${location.longitude})" 
+                                    style="padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
                                 مشاهده در نقشه
                             </button>
-                            <button class="action-btn btn-copy" onclick="copyCoords(${location.latitude}, ${location.longitude})">
+                            <button onclick="copyCoords(${location.latitude}, ${location.longitude})" 
+                                    style="padding: 8px 15px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
                                 کپی مختصات
                             </button>
                         </div>
@@ -456,7 +431,7 @@
             locationsList.innerHTML = html;
         }
         
-        // مشاهده در نقشه
+        // مشاهده در نقشه خارجی
         function viewOnMap(lat, lng) {
             window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`, '_blank');
         }
@@ -469,40 +444,8 @@
                 .catch(err => alert('❌ خطا در کپی کردن'));
         }
         
-        // پاک کردن همه داده‌ها
-        async function clearAll() {
-            if (!confirm('⚠️ آیا مطمئن هستید که می‌خواهید تمام موقعیت‌ها را پاک کنید؟ این عمل برگشت‌ناپذیر است!')) {
-                return;
-            }
-            
-            try {
-                // پاک کردن IndexedDB
-                const request = indexedDB.deleteDatabase('LocationDB');
-                
-                request.onsuccess = () => {
-                    debugLog('✅ دیتابیس پاک شد');
-                    alert('✅ تمام موقعیت‌ها پاک شدند');
-                    
-                    // پاک کردن localStorage
-                    localStorage.removeItem('lastLocation');
-                    
-                    // بارگذاری مجدد صفحه
-                    loadLocations();
-                };
-                
-                request.onerror = (event) => {
-                    debugLog('❌ خطا در پاک کردن دیتابیس: ' + event.target.error);
-                    alert('❌ خطا در پاک کردن داده‌ها');
-                };
-                
-            } catch (error) {
-                debugLog('❌ خطا: ' + error.message);
-                alert('❌ خطا در پاک کردن داده‌ها');
-            }
-        }
-        
-        // فرمت زمان
-        function formatTime(timestamp) {
+        // فرمت تاریخ
+        function formatDate(timestamp) {
             try {
                 const date = new Date(timestamp);
                 return date.toLocaleString('fa-IR', {
@@ -510,16 +453,16 @@
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
+                    second: '2-digit'
                 });
             } catch (e) {
                 return timestamp;
             }
         }
         
-        // بارگذاری خودکار هنگام لود صفحه
+        // بارگذاری خودکار
         window.onload = function() {
-            debugLog('صفحه لود شد');
             loadLocations();
         };
     </script>
