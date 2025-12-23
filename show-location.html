@@ -9,17 +9,17 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #f0f8ff;
             margin: 0;
+            min-height: 100vh;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 20px;
+            background: white;
+            border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         header {
             text-align: center;
@@ -29,12 +29,7 @@
         }
         h1 {
             color: #333;
-            font-size: 2.5rem;
             margin: 0;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 1.1rem;
         }
         .controls {
             display: flex;
@@ -43,33 +38,29 @@
             margin: 30px 0;
             flex-wrap: wrap;
         }
-        .btn {
+        button, .btn {
             padding: 12px 25px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            font-weight: 600;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
+            background: #4CAF50;
             color: white;
         }
         .btn-secondary {
-            background: linear-gradient(135deg, #2196F3, #1976d2);
+            background: #2196F3;
             color: white;
         }
-        .btn:hover {
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        button:hover, .btn:hover {
+            opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .stats {
             display: grid;
@@ -78,87 +69,61 @@
             margin: 30px 0;
         }
         .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            border: 1px solid #eee;
-            transition: transform 0.3s;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
+            border: 1px solid #dee2e6;
         }
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
             color: #4CAF50;
             margin: 10px 0;
         }
-        .stat-label {
-            color: #666;
-            font-size: 1rem;
-        }
-        #map {
-            height: 400px;
-            width: 100%;
-            border-radius: 15px;
-            margin: 30px 0;
-            border: 2px solid #ddd;
-            overflow: hidden;
-        }
         .locations-container {
-            margin-top: 30px;
-        }
-        .locations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            margin-top: 40px;
         }
         .location-card {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 1px solid #eee;
-            transition: all 0.3s;
-            position: relative;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s;
         }
         .location-card:hover {
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            transform: translateY(-5px);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .location-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
         }
-        .location-index {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+        .location-number {
+            background: #4CAF50;
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2rem;
         }
         .coordinates {
             font-family: 'Courier New', monospace;
-            background: #f8f9fa;
+            background: #f5f5f5;
             padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
+            border-radius: 8px;
+            margin: 10px 0;
             text-align: center;
             font-size: 1.1rem;
-            color: #333;
-            border: 1px solid #e0e0e0;
             direction: ltr;
         }
         .location-details {
@@ -167,7 +132,7 @@
         .detail-row {
             display: flex;
             justify-content: space-between;
-            margin: 8px 0;
+            margin: 5px 0;
             padding: 5px 0;
             border-bottom: 1px dashed #eee;
         }
@@ -177,30 +142,21 @@
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 0.9rem;
-            margin-top: 10px;
             display: inline-block;
+            margin-top: 10px;
         }
         .actions {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         .action-btn {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .action-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
         }
         .btn-map {
             background: #4CAF50;
@@ -210,19 +166,14 @@
             background: #2196F3;
             color: white;
         }
-        .btn-delete {
-            background: #ff9800;
-            color: white;
-        }
         .loading {
             text-align: center;
-            padding: 60px;
-            font-size: 1.2rem;
+            padding: 50px;
             color: #666;
         }
         .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4CAF50;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -238,305 +189,232 @@
             padding: 60px;
             color: #999;
         }
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        @media (max-width: 768px) {
-            .locations-grid {
-                grid-template-columns: 1fr;
-            }
-            .stats {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-        }
-        .debug-info {
-            background: #f5f5f5;
+        #debug {
+            background: #333;
+            color: white;
             padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
             font-family: monospace;
             font-size: 12px;
             max-height: 200px;
             overflow-y: auto;
+            display: none;
         }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-map-marked-alt"></i> موقعیت‌های ذخیره شده</h1>
-            <p class="subtitle">تمامی موقعیت‌های دریافت شده از کاربران مختلف</p>
+            <h1>📋 موقعیت‌های ذخیره شده</h1>
+            <p>تمامی موقعیت‌های دریافت شده از کاربران</p>
         </header>
         
         <div class="controls">
-            <button onclick="loadLocations()" class="btn btn-primary">
-                <i class="fas fa-sync-alt"></i> بارگذاری مجدد
+            <button onclick="loadLocations()" class="btn-primary">
+                🔄 بارگذاری موقعیت‌ها
             </button>
-            <button onclick="clearDatabase()" class="btn btn-danger">
-                <i class="fas fa-trash-alt"></i> پاک کردن همه
+            <button onclick="clearAll()" class="btn-danger">
+                🗑️ پاک کردن همه
             </button>
-            <a href="index.html" class="btn btn-secondary">
-                <i class="fas fa-plus-circle"></i> موقعیت جدید
+            <a href="index.html" class="btn-secondary">
+                ➕ موقعیت جدید
             </a>
         </div>
         
         <div class="stats">
             <div class="stat-card">
-                <div class="stat-label">تعداد کل موقعیت‌ها</div>
+                <div>تعداد موقعیت‌ها</div>
                 <div class="stat-number" id="totalCount">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">دستگاه‌های فعال</div>
-                <div class="stat-number" id="deviceCount">0</div>
+                <div>آخرین موقعیت</div>
+                <div class="stat-number" id="lastTime">-</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">اولین موقعیت</div>
-                <div class="stat-number" id="firstDate">-</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">آخرین موقعیت</div>
-                <div class="stat-number" id="lastDate">-</div>
+                <div>اولین موقعیت</div>
+                <div class="stat-number" id="firstTime">-</div>
             </div>
         </div>
         
-        <div id="map">در حال بارگذاری نقشه...</div>
-        
-        <div class="locations-container">
-            <h2><i class="fas fa-list-alt"></i> لیست موقعیت‌ها</h2>
-            <div id="locationsList">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    در حال بارگذاری موقعیت‌ها...
-                </div>
+        <div id="locationsList" class="locations-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                در حال بارگذاری موقعیت‌ها...
             </div>
         </div>
         
-        <div id="debug" class="debug-info" style="display: none;">
-            <strong>اطلاعات دیباگ:</strong>
-            <div id="debugContent"></div>
-        </div>
+        <div id="debug"></div>
     </div>
 
     <script>
-        // متغیرهای جهانی
-        let db = null;
-        let map = null;
-        let allLocations = [];
-        let markers = [];
+        // فعال کردن دیباگ
+        const DEBUG = true;
         
-        // تابع ثبت دیباگ
         function debugLog(message) {
-            console.log(message);
-            const debugDiv = document.getElementById('debug');
-            const debugContent = document.getElementById('debugContent');
-            if (debugDiv && debugContent) {
-                debugDiv.style.display = 'block';
-                debugContent.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-            }
-        }
-        
-        // مقداردهی اولیه دیتابیس
-        function initDatabase() {
-            return new Promise((resolve, reject) => {
-                debugLog('در حال باز کردن دیتابیس...');
-                
-                const request = indexedDB.open('LocationDB', 1);
-                
-                request.onerror = function(event) {
-                    debugLog('❌ خطا در باز کردن دیتابیس: ' + event.target.error);
-                    reject(event.target.error);
-                };
-                
-                request.onsuccess = function(event) {
-                    db = event.target.result;
-                    debugLog('✅ دیتابیس با موفقیت باز شد');
-                    
-                    // بررسی موجودیت object store
-                    if (!db.objectStoreNames.contains('locations')) {
-                        debugLog('⚠️ object store locations وجود ندارد');
-                        resolve(db);
-                    } else {
-                        resolve(db);
-                    }
-                };
-                
-                request.onupgradeneeded = function(event) {
-                    debugLog('آپگرید دیتابیس در حال اجرا...');
-                    const db = event.target.result;
-                    
-                    // ایجاد object store اگر وجود ندارد
-                    if (!db.objectStoreNames.contains('locations')) {
-                        debugLog('ایجاد object store جدید...');
-                        const store = db.createObjectStore('locations', { 
-                            keyPath: 'id',
-                            autoIncrement: true 
-                        });
-                        
-                        // ایجاد ایندکس‌ها
-                        store.createIndex('timestamp', 'timestamp');
-                        store.createIndex('latitude', 'latitude');
-                        store.createIndex('longitude', 'longitude');
-                        
-                        debugLog('✅ object store و ایندکس‌ها ایجاد شدند');
-                    }
-                };
-            });
-        }
-        
-        // دریافت تمام موقعیت‌ها
-        async function getAllLocations() {
-            if (!db) {
-                await initDatabase();
-            }
-            
-            return new Promise((resolve, reject) => {
-                if (!db.objectStoreNames.contains('locations')) {
-                    debugLog('object store locations وجود ندارد');
-                    resolve([]);
-                    return;
+            if (DEBUG) {
+                console.log(message);
+                const debugDiv = document.getElementById('debug');
+                if (debugDiv) {
+                    debugDiv.style.display = 'block';
+                    debugDiv.innerHTML += `${new Date().toLocaleTimeString()}: ${message}<br>`;
                 }
-                
-                const transaction = db.transaction(['locations'], 'readonly');
-                const store = transaction.objectStore('locations');
-                const index = store.index('timestamp');
-                
-                const request = index.openCursor(null, 'prev'); // مرتب بر اساس زمان (جدیدترین اول)
-                const locations = [];
-                
-                request.onsuccess = function(event) {
-                    const cursor = event.target.result;
-                    if (cursor) {
-                        locations.push(cursor.value);
-                        cursor.continue();
-                    } else {
-                        debugLog(`✅ ${locations.length} موقعیت دریافت شد`);
-                        resolve(locations);
-                    }
-                };
-                
-                request.onerror = function(event) {
-                    debugLog('❌ خطا در دریافت موقعیت‌ها: ' + event.target.error);
-                    reject(event.target.error);
-                };
-            });
+            }
         }
         
-        // بارگذاری و نمایش موقعیت‌ها
+        // بارگذاری موقعیت‌ها از IndexedDB
         async function loadLocations() {
-            debugLog('=== شروع بارگذاری موقعیت‌ها ===');
-            
             const locationsList = document.getElementById('locationsList');
             locationsList.innerHTML = `
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    در حال بارگذاری موقعیت‌ها...
+                    در حال بارگذاری...
                 </div>
             `;
             
             try {
-                // دریافت موقعیت‌ها از دیتابیس
-                allLocations = await getAllLocations();
-                debugLog(`تعداد موقعیت‌های دریافتی: ${allLocations.length}`);
+                debugLog('شروع بارگذاری موقعیت‌ها...');
+                
+                // باز کردن دیتابیس
+                const db = await openDatabase();
+                
+                if (!db) {
+                    throw new Error('نمی‌توان دیتابیس را باز کرد');
+                }
+                
+                // دریافت تمام موقعیت‌ها
+                const locations = await getAllLocations(db);
+                debugLog(`تعداد موقعیت‌های دریافتی: ${locations.length}`);
                 
                 // به‌روزرسانی آمار
-                updateStats(allLocations);
+                updateStats(locations);
                 
                 // نمایش موقعیت‌ها
-                displayLocations(allLocations);
-                
-                // نمایش روی نقشه
-                displayOnMap(allLocations);
+                displayLocations(locations);
                 
             } catch (error) {
-                debugLog('❌ خطا در بارگذاری موقعیت‌ها: ' + error);
+                debugLog(`❌ خطا در بارگذاری: ${error.message}`);
                 
                 // نمایش خطا
                 locationsList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
                         <h3>خطا در بارگذاری موقعیت‌ها</h3>
-                        <p>${error.message || 'خطای نامشخص'}</p>
-                        <button onclick="loadLocations()" class="btn btn-primary">
-                            <i class="fas fa-redo"></i> تلاش مجدد
+                        <p>${error.message}</p>
+                        <button onclick="loadLocations()" class="btn-primary">
+                            تلاش مجدد
                         </button>
                     </div>
                 `;
             }
         }
         
+        // باز کردن دیتابیس
+        function openDatabase() {
+            return new Promise((resolve, reject) => {
+                if (!window.indexedDB) {
+                    reject(new Error('IndexedDB پشتیبانی نمی‌شود'));
+                    return;
+                }
+                
+                const request = indexedDB.open('LocationDB', 1);
+                
+                request.onerror = (event) => {
+                    reject(new Error('خطا در باز کردن دیتابیس: ' + event.target.error));
+                };
+                
+                request.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    // ایجاد object store اگر وجود ندارد
+                    if (!db.objectStoreNames.contains('locations')) {
+                        db.createObjectStore('locations', {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        });
+                        debugLog('object store جدید ایجاد شد');
+                    }
+                };
+            });
+        }
+        
+        // دریافت تمام موقعیت‌ها
+        function getAllLocations(db) {
+            return new Promise((resolve, reject) => {
+                if (!db.objectStoreNames.contains('locations')) {
+                    resolve([]);
+                    return;
+                }
+                
+                const transaction = db.transaction(['locations'], 'readonly');
+                const store = transaction.objectStore('locations');
+                
+                // دریافت همه رکوردها
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    // مرتب‌سازی بر اساس زمان (جدیدترین اول)
+                    const locations = request.result.sort((a, b) => {
+                        return new Date(b.timestamp) - new Date(a.timestamp);
+                    });
+                    resolve(locations);
+                };
+                
+                request.onerror = (event) => {
+                    reject(new Error('خطا در دریافت داده‌ها: ' + event.target.error));
+                };
+            });
+        }
+        
         // به‌روزرسانی آمار
         function updateStats(locations) {
             document.getElementById('totalCount').textContent = locations.length;
             
-            // شمارش دستگاه‌های مختلف
-            const deviceIds = new Set();
-            locations.forEach(loc => {
-                if (loc.deviceId) deviceIds.add(loc.deviceId);
-                if (loc.userAgent) deviceIds.add(loc.userAgent.substring(0, 50));
-            });
-            document.getElementById('deviceCount').textContent = deviceIds.size;
-            
-            // تاریخ اولین و آخرین موقعیت
             if (locations.length > 0) {
-                const first = locations[locations.length - 1]; // قدیمی‌ترین
-                const last = locations[0]; // جدیدترین
+                // آخرین موقعیت
+                const last = locations[0];
+                document.getElementById('lastTime').textContent = 
+                    formatTime(last.timestampPersian || last.timestamp);
                 
-                const formatDate = (dateStr) => {
-                    try {
-                        const date = new Date(dateStr);
-                        return date.toLocaleDateString('fa-IR');
-                    } catch (e) {
-                        return dateStr;
-                    }
-                };
-                
-                document.getElementById('firstDate').textContent = formatDate(first.timestamp);
-                document.getElementById('lastDate').textContent = formatDate(last.timestamp);
+                // اولین موقعیت
+                const first = locations[locations.length - 1];
+                document.getElementById('firstTime').textContent = 
+                    formatTime(first.timestampPersian || first.timestamp);
             } else {
-                document.getElementById('firstDate').textContent = '-';
-                document.getElementById('lastDate').textContent = '-';
+                document.getElementById('lastTime').textContent = '-';
+                document.getElementById('firstTime').textContent = '-';
             }
         }
         
-        // نمایش موقعیت‌ها در لیست
+        // نمایش موقعیت‌ها
         function displayLocations(locations) {
             const locationsList = document.getElementById('locationsList');
             
             if (locations.length === 0) {
                 locationsList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <h3>هنوز موقعیتی ذخیره نشده است</h3>
+                        <h3>📭 هیچ موقعیتی ذخیره نشده است</h3>
                         <p>اولین موقعیت را دریافت کنید!</p>
-                        <a href="index.html" class="btn btn-primary">
-                            <i class="fas fa-plus-circle"></i> دریافت موقعیت جدید
+                        <a href="index.html" class="btn-primary" style="display: inline-block; margin-top: 20px;">
+                            دریافت موقعیت جدید
                         </a>
                     </div>
                 `;
                 return;
             }
             
-            let html = '<div class="locations-grid">';
+            let html = '';
             
             locations.forEach((location, index) => {
-                const persianDate = location.timestampPersian || 
-                                   new Date(location.timestamp).toLocaleString('fa-IR');
-                
                 html += `
                     <div class="location-card">
                         <div class="location-header">
-                            <div class="location-index">${index + 1}</div>
+                            <div class="location-number">${index + 1}</div>
                             <div style="font-size: 0.9rem; color: #666;">
-                                ${location.deviceId ? 'دستگاه: ' + location.deviceId.substring(0, 10) + '...' : 'دستگاه ناشناس'}
+                                ${location.deviceId ? location.deviceId.substring(0, 12) + '...' : 'دستگاه ناشناس'}
                             </div>
                         </div>
                         
@@ -560,231 +438,89 @@
                         </div>
                         
                         <div class="timestamp">
-                            <i class="fas fa-clock"></i> ${persianDate}
+                            📅 ${location.timestampPersian || formatTime(location.timestamp)}
                         </div>
                         
                         <div class="actions">
                             <button class="action-btn btn-map" onclick="viewOnMap(${location.latitude}, ${location.longitude})">
-                                <i class="fas fa-map"></i> نقشه
+                                مشاهده در نقشه
                             </button>
-                            <button class="action-btn btn-copy" onclick="copyCoordinates(${location.latitude}, ${location.longitude})">
-                                <i class="fas fa-copy"></i> کپی
-                            </button>
-                            <button class="action-btn btn-delete" onclick="deleteLocation(${location.id})">
-                                <i class="fas fa-trash"></i> حذف
+                            <button class="action-btn btn-copy" onclick="copyCoords(${location.latitude}, ${location.longitude})">
+                                کپی مختصات
                             </button>
                         </div>
                     </div>
                 `;
             });
             
-            html += '</div>';
             locationsList.innerHTML = html;
         }
         
-        // نمایش موقعیت‌ها روی نقشه
-        function displayOnMap(locations) {
-            const mapElement = document.getElementById('map');
-            
-            if (locations.length === 0) {
-                mapElement.innerHTML = '<div style="padding: 50px; text-align: center; color: #666;">موقعیتی برای نمایش روی نقشه وجود ندارد</div>';
-                return;
-            }
-            
-            // پاک کردن نقشه قبلی
-            if (map) {
-                map.remove();
-                markers.forEach(marker => {
-                    if (marker.remove) marker.remove();
-                });
-                markers = [];
-            }
-            
-            // ایجاد نقشه جدید
-            const centerLat = locations[0].latitude;
-            const centerLng = locations[0].longitude;
-            
-            map = L.map('map').setView([centerLat, centerLng], 10);
-            
-            // اضافه کردن لایه OpenStreetMap
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }).addTo(map);
-            
-            // اضافه کردن مارکرها
-            locations.forEach((location, index) => {
-                const marker = L.marker([location.latitude, location.longitude]).addTo(map);
-                
-                marker.bindPopup(`
-                    <div style="text-align: right; direction: rtl;">
-                        <strong>موقعیت ${index + 1}</strong><br>
-                        مختصات: ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}<br>
-                        دقت: ${location.accuracy ? location.accuracy.toFixed(2) + ' متر' : 'نامشخص'}<br>
-                        زمان: ${location.timestampPersian || new Date(location.timestamp).toLocaleString('fa-IR')}
-                    </div>
-                `);
-                
-                markers.push(marker);
-            });
-            
-            // اگر بیش از یک موقعیت داریم، map را zoom out کنیم
-            if (locations.length > 1) {
-                const bounds = L.latLngBounds(locations.map(loc => [loc.latitude, loc.longitude]));
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
-            
-            debugLog('✅ نقشه با ' + locations.length + ' مارکر ایجاد شد');
-        }
-        
-        // مشاهده موقعیت در نقشه خارجی
+        // مشاهده در نقشه
         function viewOnMap(lat, lng) {
             window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`, '_blank');
         }
         
         // کپی مختصات
-        function copyCoordinates(lat, lng) {
+        function copyCoords(lat, lng) {
             const text = `${lat}, ${lng}`;
             navigator.clipboard.writeText(text)
-                .then(() => {
-                    alert('مختصات کپی شد: ' + text);
-                })
-                .catch(err => {
-                    console.error('خطا در کپی:', err);
-                    alert('خطا در کپی کردن مختصات');
-                });
+                .then(() => alert('✅ مختصات کپی شد: ' + text))
+                .catch(err => alert('❌ خطا در کپی کردن'));
         }
         
-        // حذف یک موقعیت
-        async function deleteLocation(id) {
-            if (!confirm('آیا مطمئن هستید که می‌خواهید این موقعیت را حذف کنید؟')) {
-                return;
-            }
-            
-            try {
-                const transaction = db.transaction(['locations'], 'readwrite');
-                const store = transaction.objectStore('locations');
-                
-                store.delete(id);
-                
-                transaction.oncomplete = function() {
-                    debugLog('✅ موقعیت با ID ' + id + ' حذف شد');
-                    loadLocations(); // بارگذاری مجدد لیست
-                };
-                
-                transaction.onerror = function(event) {
-                    debugLog('❌ خطا در حذف موقعیت: ' + event.target.error);
-                    alert('خطا در حذف موقعیت');
-                };
-                
-            } catch (error) {
-                debugLog('❌ خطا در حذف: ' + error);
-                alert('خطا در حذف موقعیت');
-            }
-        }
-        
-        // پاک کردن کل دیتابیس
-        async function clearDatabase() {
+        // پاک کردن همه داده‌ها
+        async function clearAll() {
             if (!confirm('⚠️ آیا مطمئن هستید که می‌خواهید تمام موقعیت‌ها را پاک کنید؟ این عمل برگشت‌ناپذیر است!')) {
                 return;
             }
             
             try {
+                // پاک کردن IndexedDB
                 const request = indexedDB.deleteDatabase('LocationDB');
                 
-                request.onsuccess = function() {
-                    debugLog('✅ دیتابیس با موفقیت پاک شد');
-                    alert('تمامی موقعیت‌ها پاک شدند');
+                request.onsuccess = () => {
+                    debugLog('✅ دیتابیس پاک شد');
+                    alert('✅ تمام موقعیت‌ها پاک شدند');
                     
-                    // ریست کردن متغیرها
-                    db = null;
-                    allLocations = [];
-                    markers = [];
+                    // پاک کردن localStorage
+                    localStorage.removeItem('lastLocation');
                     
-                    // به‌روزرسانی نمایش
-                    document.getElementById('locationsList').innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-check-circle"></i>
-                            <h3>همه موقعیت‌ها پاک شدند</h3>
-                            <a href="index.html" class="btn btn-primary">
-                                دریافت موقعیت جدید
-                            </a>
-                        </div>
-                    `;
-                    
-                    updateStats([]);
-                    document.getElementById('map').innerHTML = 'دیتابیس پاک شد. نقشه‌ای برای نمایش وجود ندارد.';
+                    // بارگذاری مجدد صفحه
+                    loadLocations();
                 };
                 
-                request.onerror = function(event) {
+                request.onerror = (event) => {
                     debugLog('❌ خطا در پاک کردن دیتابیس: ' + event.target.error);
-                    alert('خطا در پاک کردن دیتابیس');
+                    alert('❌ خطا در پاک کردن داده‌ها');
                 };
                 
             } catch (error) {
-                debugLog('❌ خطا: ' + error);
-                alert('خطا در پاک کردن دیتابیس');
+                debugLog('❌ خطا: ' + error.message);
+                alert('❌ خطا در پاک کردن داده‌ها');
             }
         }
         
-        // تابع کمکی برای تبدیل تاریخ
-        function formatPersianDate(date) {
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            return new Date(date).toLocaleDateString('fa-IR', options);
-        }
-        
-        // مقداردهی اولیه هنگام لود صفحه
-        window.onload = async function() {
-            debugLog('=== شروع مقداردهی اولیه صفحه ===');
-            
-            // فعال کردن دیباگ
-            document.getElementById('debug').style.display = 'block';
-            
-            // بررسی پشتیبانی از IndexedDB
-            if (!window.indexedDB) {
-                debugLog('❌ IndexedDB پشتیبانی نمی‌شود');
-                document.getElementById('locationsList').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>مرورگر شما از قابلیت ذخیره‌سازی پشتیبانی نمی‌کند</h3>
-                        <p>لطفاً از مرورگرهای مدرن مانند Chrome، Firefox یا Edge استفاده کنید.</p>
-                    </div>
-                `;
-                return;
-            }
-            
+        // فرمت زمان
+        function formatTime(timestamp) {
             try {
-                await initDatabase();
-                await loadLocations();
-                debugLog('✅ صفحه با موفقیت لود شد');
-            } catch (error) {
-                debugLog('❌ خطا در مقداردهی اولیه: ' + error);
-                
-                // بررسی اگر دیتابیس خالی است
-                const locationsList = document.getElementById('locationsList');
-                locationsList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-database"></i>
-                        <h3>دیتابیس موقعیت‌ها خالی است</h3>
-                        <p>هنوز موقعیتی ذخیره نشده است. اولین موقعیت را دریافت کنید!</p>
-                        <a href="index.html" class="btn btn-primary">
-                            <i class="fas fa-plus-circle"></i> دریافت موقعیت جدید
-                        </a>
-                    </div>
-                `;
+                const date = new Date(timestamp);
+                return date.toLocaleString('fa-IR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return timestamp;
             }
-        };
+        }
         
-        // هندلر خطاهای عمومی
-        window.onerror = function(message, source, lineno, colno, error) {
-            debugLog(`خطای عمومی: ${message} در ${source}:${lineno}`);
-            if (error) debugLog(`جزئیات خطا: ${error.stack}`);
+        // بارگذاری خودکار هنگام لود صفحه
+        window.onload = function() {
+            debugLog('صفحه لود شد');
+            loadLocations();
         };
     </script>
 </body>
