@@ -25,6 +25,10 @@
         button:hover {
             background-color: #45a049;
         }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         #message {
             margin-top: 20px;
             color: #555;
@@ -32,6 +36,8 @@
             border-radius: 8px;
             min-height: 60px;
             background-color: #f8f9fa;
+            white-space: pre-wrap;
+            font-family: monospace;
         }
         .loading {
             display: inline-block;
@@ -46,24 +52,47 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        #debug {
+            margin-top: 20px;
+            padding: 15px;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <h1>خوش آمدید! 🌍</h1>
     <p>برای نمایش موقعیت شما، دکمه زیر را کلیک کنید.</p>
     <button onclick="getLocation()" id="locationBtn">دریافت موقعیت من</button>
-    <p id="message"></p>
+    <div id="message"></div>
+    <div id="debug"></div>
 
     <script>
         // تنظیمات GitHub - توکن جدید اینجا قرار دهید
         const GITHUB_CONFIG = {
-            username: 'amircrypto210-create', // نام کاربری GitHub شما
-            repo: 'amirbordbarweb',           // نام ریپازیتوری
-            token: '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', // 🔴 توکن جدید اینجا قرار دهید
-            dataFile: 'locations.json'        // فایل ذخیره‌سازی
+            username: 'amircrypto210-create',
+            repo: 'amirbordbarweb',
+            token: 'TOKEN_GHADI_JADID', // 🔴 توکن جدید اینجا قرار دهید
+            dataFile: 'locations.json'
         };
         
+        // تابع ثبت دیباگ
+        function debugLog(message) {
+            console.log(message);
+            const debugDiv = document.getElementById('debug');
+            debugDiv.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+        
         function getLocation() {
+            debugLog('=== شروع فرآیند دریافت موقعیت ===');
+            
             const message = document.getElementById("message");
             const button = document.getElementById("locationBtn");
             
@@ -83,18 +112,22 @@
                     const lng = position.coords.longitude;
                     const acc = position.coords.accuracy;
                     
+                    debugLog(`📍 موقعیت دریافت شد: ${lat}, ${lng}`);
                     message.innerHTML = "📍 موقعیت دریافت شد! در حال ذخیره در سرور...";
                     
                     try {
-                        // ابتدا بررسی کن که توکن وارد شده است
-                        if (GITHUB_CONFIG.token === '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' || GITHUB_CONFIG.token.length < 10) {
-                            throw new Error('لطفاً توکن GitHub خود را در کد قرار دهید');
+                        // بررسی توکن
+                        if (GITHUB_CONFIG.token === 'TOKEN_GHADI_JADID' || GITHUB_CONFIG.token.length < 10) {
+                            throw new Error('لطفاً توکن GitHub خود را در کد قرار دهید (خط 25)');
                         }
+                        
+                        debugLog('توکن موجود است، شروع ذخیره‌سازی...');
                         
                         // ذخیره در سرور GitHub
                         const saved = await saveToGitHub(lat, lng, acc);
                         
                         if (saved) {
+                            debugLog('✅ موقعیت با موفقیت در سرور ذخیره شد!');
                             message.innerHTML = "✅ موقعیت با موفقیت در سرور ذخیره شد!";
                             
                             // هدایت به صفحه نمایش
@@ -102,14 +135,15 @@
                                 window.location.href = "show-location.html";
                             }, 2000);
                         } else {
+                            debugLog('⚠️ موقعیت دریافت شد اما در سرور ذخیره نشد.');
                             message.innerHTML = "⚠️ موقعیت دریافت شد اما در سرور ذخیره نشد.";
                             button.disabled = false;
                             button.textContent = 'تلاش مجدد';
                         }
                         
                     } catch (error) {
-                        message.innerHTML = "❌ خطا در ذخیره موقعیت: " + error.message;
-                        console.error('Error details:', error);
+                        debugLog(`❌ خطا در ذخیره موقعیت: ${error.message}`);
+                        message.innerHTML = `❌ خطا در ذخیره موقعیت:\n${error.message}`;
                         button.disabled = false;
                         button.textContent = 'تلاش مجدد';
                     }
@@ -129,6 +163,7 @@
                         default:
                             errorMessage = "خطای ناشناخته رخ داد.";
                     }
+                    debugLog(`❌ خطای موقعیت‌یابی: ${errorMessage}`);
                     message.innerHTML = "خطا: " + errorMessage;
                     button.disabled = false;
                     button.textContent = 'تلاش مجدد';
@@ -144,11 +179,12 @@
         // ذخیره موقعیت در GitHub
         async function saveToGitHub(latitude, longitude, accuracy) {
             try {
-                console.log('Starting save to GitHub...');
+                debugLog('1. شروع ذخیره‌سازی در GitHub...');
                 
                 // 1. دریافت داده‌های موجود از GitHub
+                debugLog('2. دریافت داده‌های موجود...');
                 const existingData = await fetchLocationsFromGitHub();
-                console.log('Fetched existing data');
+                debugLog(`3. تعداد موقعیت‌های موجود: ${existingData.locations.length}`);
                 
                 // 2. ایجاد موقعیت جدید
                 const newLocation = {
@@ -161,24 +197,26 @@
                     device: navigator.userAgent.substring(0, 100)
                 };
                 
-                console.log('New location:', newLocation);
+                debugLog('4. موقعیت جدید ایجاد شد');
                 
-                // 3. اضافه کردن به لیست (جدیدترین اول)
+                // 3. اضافه کردن به لیست
                 existingData.locations.unshift(newLocation);
                 
-                // 4. محدود کردن تعداد (آخرین 50 موقعیت)
+                // 4. محدود کردن تعداد
                 if (existingData.locations.length > 50) {
                     existingData.locations = existingData.locations.slice(0, 50);
                 }
                 
                 // 5. ذخیره در GitHub
+                debugLog('5. شروع آپلود به GitHub...');
                 const result = await uploadToGitHub(existingData);
-                console.log('Upload result:', result);
+                debugLog('6. آپلود موفقیت‌آمیز بود');
                 
                 return true;
                 
             } catch (error) {
-                console.error('خطا در ذخیره موقعیت:', error);
+                debugLog(`❌ خطا در ذخیره موقعیت: ${error.message}`);
+                debugLog(`Stack: ${error.stack}`);
                 throw error;
             }
         }
@@ -187,19 +225,18 @@
         async function fetchLocationsFromGitHub() {
             const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/main/${GITHUB_CONFIG.dataFile}`;
             
-            console.log('Fetching from:', url);
+            debugLog(`دریافت از: ${url}`);
             
             try {
                 const response = await fetch(url + '?t=' + Date.now());
-                console.log('Response status:', response.status);
+                debugLog(`وضعیت پاسخ: ${response.status} ${response.statusText}`);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('Data fetched successfully');
+                    debugLog('داده‌ها با موفقیت دریافت شدند');
                     return data;
                 } else {
-                    console.log('File not found, creating initial structure');
-                    // اگر فایل وجود نداشت، ساختار اولیه برگردان
+                    debugLog('فایل وجود ندارد، ایجاد ساختار اولیه');
                     return {
                         locations: [],
                         lastUpdated: new Date().toISOString(),
@@ -207,8 +244,7 @@
                     };
                 }
             } catch (error) {
-                console.log('Fetch error:', error);
-                // در صورت خطا، ساختار اولیه برگردان
+                debugLog(`خطا در دریافت: ${error.message}`);
                 return {
                     locations: [],
                     lastUpdated: new Date().toISOString(),
@@ -221,7 +257,7 @@
         async function uploadToGitHub(data) {
             const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`;
             
-            console.log('Uploading to:', apiUrl);
+            debugLog(`آپلود به: ${apiUrl}`);
             
             // به‌روزرسانی metadata
             data.lastUpdated = new Date().toISOString();
@@ -231,11 +267,12 @@
             const content = JSON.stringify(data, null, 2);
             const contentEncoded = btoa(unescape(encodeURIComponent(content)));
             
-            console.log('Content to upload:', data);
+            debugLog(`تعداد موقعیت‌ها برای آپلود: ${data.locations.length}`);
             
-            // دریافت SHA فایل موجود (اگر وجود دارد)
+            // دریافت SHA فایل موجود
             let sha = '';
             try {
+                debugLog('دریافت SHA فایل موجود...');
                 const response = await fetch(apiUrl, {
                     headers: {
                         'Authorization': `token ${GITHUB_CONFIG.token}`,
@@ -243,20 +280,36 @@
                     }
                 });
                 
-                console.log('SHA fetch status:', response.status);
+                debugLog(`وضعیت دریافت SHA: ${response.status}`);
                 
                 if (response.ok) {
                     const fileData = await response.json();
                     sha = fileData.sha;
-                    console.log('Got SHA:', sha);
+                    debugLog(`SHA دریافت شد: ${sha.substring(0, 20)}...`);
+                } else {
+                    debugLog('فایل وجود ندارد، ایجاد جدید');
                 }
             } catch (error) {
-                console.log('No existing file or error:', error);
-                // فایل وجود ندارد
+                debugLog(`خطا در دریافت SHA: ${error.message}`);
             }
             
+            // آماده‌سازی درخواست آپلود
+            const requestBody = {
+                message: `افزودن موقعیت جدید - ${new Date().toLocaleString('fa-IR')}`,
+                content: contentEncoded,
+                committer: {
+                    name: 'Location Tracker',
+                    email: 'location@tracker.com'
+                }
+            };
+            
+            if (sha) {
+                requestBody.sha = sha;
+            }
+            
+            debugLog('ارسال درخواست آپلود...');
+            
             // آپلود فایل
-            console.log('Uploading file...');
             const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
@@ -264,37 +317,28 @@
                     'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    message: `افزودن موقعیت جدید - ${new Date().toLocaleString('fa-IR')}`,
-                    content: contentEncoded,
-                    sha: sha || undefined,
-                    committer: {
-                        name: 'Location Tracker',
-                        email: 'location@tracker.com'
-                    }
-                })
+                body: JSON.stringify(requestBody)
             });
             
-            console.log('Upload response status:', response.status);
+            debugLog(`وضعیت آپلود: ${response.status} ${response.statusText}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Upload error details:', errorData);
-                throw new Error(errorData.message || 'خطا در آپلود به GitHub');
+                debugLog(`جزئیات خطا: ${JSON.stringify(errorData)}`);
+                throw new Error(errorData.message || `خطای HTTP: ${response.status}`);
             }
             
             const result = await response.json();
-            console.log('Upload successful:', result);
+            debugLog('آپلود موفقیت‌آمیز');
             return result;
         }
         
         // بررسی اولیه
         window.onload = function() {
-            console.log('GitHub Config:', {
-                username: GITHUB_CONFIG.username,
-                repo: GITHUB_CONFIG.repo,
-                hasToken: !!GITHUB_CONFIG.token && GITHUB_CONFIG.token !== 'TOKEN_GHADI_JADID'
-            });
+            debugLog('=== صفحه لود شد ===');
+            debugLog(`کاربر: ${GITHUB_CONFIG.username}`);
+            debugLog(`ریپو: ${GITHUB_CONFIG.repo}`);
+            debugLog(`توکن وارد شده: ${GITHUB_CONFIG.token !== 'TOKEN_GHADI_JADID' ? 'بله' : 'خیر (نیاز به جایگزینی)'}`);
         };
     </script>
 </body>
