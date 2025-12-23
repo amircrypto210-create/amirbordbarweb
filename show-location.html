@@ -17,39 +17,76 @@
             border-radius: 15px;
             padding: 30px;
             margin: 20px auto;
-            max-width: 500px;
+            max-width: 600px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .map-link {
             display: inline-block;
-            margin-top: 20px;
+            margin: 10px;
             padding: 12px 25px;
             background-color: #2196F3;
             color: white;
             text-decoration: none;
             border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .map-link:hover {
+            background-color: #0b7dda;
         }
         .coordinates {
             font-family: monospace;
             background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: right;
+            border: 1px solid #dee2e6;
         }
         #map {
-            height: 300px;
+            height: 400px;
             width: 100%;
-            max-width: 500px;
-            margin: 20px auto;
+            max-width: 600px;
+            margin: 25px auto;
             border-radius: 10px;
-            display: none;
+            border: 2px solid #ddd;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .accuracy-info {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
         }
     </style>
-    <!-- لود کتابخانه Google Maps (اختیاری) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <!-- Leaflet CSS & JS برای نقشه تعاملی -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
 </head>
 <body>
-    <h1>موقعیت شما 🌐</h1>
+    <h1>موقعیت شما روی نقشه 🌍</h1>
     
     <div class="location-info">
         <h3>مختصات جغرافیایی:</h3>
@@ -57,13 +94,25 @@
             <p><strong>عرض جغرافیایی (Latitude):</strong> <span id="lat">در حال بارگذاری...</span></p>
             <p><strong>طول جغرافیایی (Longitude):</strong> <span id="lng">در حال بارگذاری...</span></p>
             <p><strong>دقت:</strong> <span id="acc">در حال بارگذاری...</span> متر</p>
+            <p class="accuracy-info">(عدد کمتر = دقت بیشتر)</p>
         </div>
         
-        <div id="map"></div>
+        <h3>نقشه موقعیت:</h3>
+        <div id="map">
+            <!-- نقشه Leaflet اینجا نمایش داده می‌شود -->
+        </div>
         
-        <a id="googleMapLink" class="map-link" target="_blank">مشاهده در Google Maps</a>
-        <br>
-        <a class="map-link" href="index.html" style="background-color: #4CAF50;">بازگشت به صفحه اصلی</a>
+        <div class="action-buttons">
+            <a id="osmLink" class="map-link" target="_blank">مشاهده در OpenStreetMap</a>
+            <a id="googleMapLink" class="map-link btn-secondary" target="_blank">مشاهده در Google Maps</a>
+            <button id="copyBtn" class="map-link btn-success">کپی مختصات</button>
+            <a class="map-link" href="index.html" style="background-color: #4CAF50;">بازگشت به صفحه اصلی</a>
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #777;">
+            نقشه با استفاده از <a href="https://leafletjs.com/" target="_blank">Leaflet</a> و 
+            <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> نمایش داده می‌شود
+        </div>
     </div>
 
     <script>
@@ -77,52 +126,140 @@
         document.getElementById("lng").textContent = lng || "نامشخص";
         document.getElementById("acc").textContent = acc || "نامشخص";
         
-        // ایجاد لینک Google Maps
+        // ایجاد لینک‌ها
         if(lat && lng) {
-            const mapLink = document.getElementById("googleMapLink");
-            mapLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
-            mapLink.textContent = `مشاهده موقعیت در Google Maps`;
+            const latNum = parseFloat(lat);
+            const lngNum = parseFloat(lng);
+            
+            // لینک OpenStreetMap
+            const osmLink = document.getElementById("osmLink");
+            osmLink.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
+            
+            // لینک Google Maps
+            const googleMapLink = document.getElementById("googleMapLink");
+            googleMapLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
+            
+            // ایجاد نقشه Leaflet
+            initLeafletMap(latNum, lngNum, acc);
+            
+            // دکمه کپی مختصات
+            document.getElementById("copyBtn").addEventListener("click", function() {
+                const coordinates = `${lat}, ${lng}`;
+                navigator.clipboard.writeText(coordinates)
+                    .then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = "کپی شد!";
+                        this.style.backgroundColor = "#28a745";
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error("خطا در کپی کردن: ", err);
+                        alert("خطا در کپی کردن مختصات");
+                    });
+            });
+        } else {
+            document.getElementById("map").innerHTML = 
+                '<div style="padding: 100px; color: #666;">موقعیت دریافت نشد. لطفاً به صفحه اصلی بازگردید.</div>';
         }
         
-        // نمایش نقشه Google (اگر API Key دارید)
-        function initMap() {
-            if(lat && lng) {
-                const location = { lat: parseFloat(lat), lng: parseFloat(lng) };
-                const map = new google.maps.Map(document.getElementById("map"), {
-                    zoom: 15,
-                    center: location
-                });
-                new google.maps.Marker({
-                    position: location,
-                    map: map
-                });
-                document.getElementById("map").style.display = "block";
+        // تابع ایجاد نقشه Leaflet
+        function initLeafletMap(latitude, longitude, accuracy) {
+            // ایجاد نقشه
+            const map = L.map('map').setView([latitude, longitude], 15);
+            
+            // اضافه کردن لایه نقشه OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // ایجاد مارکر
+            const marker = L.marker([latitude, longitude]).addTo(map)
+                .bindPopup(`موقعیت شما<br>عرض: ${latitude.toFixed(6)}<br>طول: ${longitude.toFixed(6)}`)
+                .openPopup();
+            
+            // اگر دقت موجود باشد، دایره دقت اضافه کن
+            if (accuracy) {
+                const accuracyCircle = L.circle([latitude, longitude], {
+                    color: 'blue',
+                    fillColor: '#03a9f4',
+                    fillOpacity: 0.1,
+                    radius: parseFloat(accuracy)
+                }).addTo(map);
             }
+            
+            // اضافه کردن کنترل‌های نقشه
+            L.control.scale().addTo(map);
+            
+            // اضافه کردن دکمه موقعیت مکانی
+            L.control.locate({
+                position: 'topright',
+                drawCircle: true,
+                follow: false,
+                setView: true,
+                keepCurrentZoomLevel: false,
+                markerStyle: {
+                    weight: 1,
+                    opacity: 0.8,
+                    fillOpacity: 0.8
+                },
+                circleStyle: {
+                    weight: 1,
+                    clickable: false
+                },
+                icon: 'fa fa-map-marker',
+                metric: true,
+                strings: {
+                    title: "موقعیت من",
+                    popup: "شما در این حدود قرار دارید"
+                },
+                locateOptions: {
+                    maxZoom: 16,
+                    watch: false,
+                    enableHighAccuracy: true
+                }
+            }).addTo(map);
+            
+            // اضافه کردن کنترل جستجو
+            const searchControl = new L.Control.Search({
+                position: 'topleft',
+                layer: marker,
+                initial: false,
+                zoom: 17,
+                marker: false,
+                textPlaceholder: 'جستجوی مکان...'
+            });
+            map.addControl(searchControl);
         }
         
-        // اگر API Key ندارید، این تابع را فراخوانی نکنید
-        // initMap();
-        
-        // روش جایگزین: استفاده از OpenStreetMap (نیاز به API Key ندارد)
-        function showOSMMap() {
+        // تابع جایگزین ساده‌تر (اگر نخواهید از Leaflet استفاده کنید)
+        function showSimpleOSMMap() {
             if(lat && lng) {
                 const mapElement = document.getElementById("map");
-                mapElement.innerHTML = `<iframe 
-                    width="100%" 
-                    height="300" 
-                    frameborder="0" 
-                    scrolling="no" 
-                    marginheight="0" 
-                    marginwidth="0" 
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}"
-                    style="border-radius: 10px;">
-                </iframe>`;
-                mapElement.style.display = "block";
+                mapElement.innerHTML = `
+                    <iframe 
+                        width="100%" 
+                        height="400" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        marginheight="0" 
+                        marginwidth="0" 
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}"
+                        style="border: none; border-radius: 10px;">
+                    </iframe>
+                    <br/>
+                    <small>
+                        <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}" target="_blank">
+                            مشاهده نقشه بزرگتر
+                        </a>
+                    </small>`;
             }
         }
         
-        // برای استفاده از OpenStreetMap، خط زیر را فعال کنید
-        // showOSMMap();
+        // در صورت نیاز به نسخه ساده‌تر، خط زیر را فعال کنید:
+        // showSimpleOSMMap();
     </script>
 </body>
 </html>
