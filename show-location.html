@@ -8,9 +8,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            direction: rtl;
+            direction: rtr;
             padding: 50px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             min-height: 100vh;
         }
         .location-info {
@@ -19,7 +19,7 @@
             padding: 40px;
             margin: 30px auto;
             max-width: 600px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         .map-link {
             display: inline-block;
@@ -35,7 +35,7 @@
         .map-link:hover {
             background-color: #0b7dda;
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.15);
         }
         .coordinates {
             font-family: 'Courier New', monospace;
@@ -65,38 +65,35 @@
             color: #4CAF50;
             margin-bottom: 20px;
         }
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 5px solid #c62828;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
     <div class="location-info">
         <div class="location-icon">📍</div>
-        <h1>موقعیت جغرافیایی شما</h1>
+        <h1>نمایش موقعیت جغرافیایی</h1>
         
-        <h3>مختصات دقیق:</h3>
-        <div class="coordinates">
-            <p><strong>عرض جغرافیایی (Latitude):</strong> <span id="lat">در حال بارگذاری...</span></p>
-            <p><strong>طول جغرافیایی (Longitude):</strong> <span id="lng">در حال بارگذاری...</span></p>
-            <p><strong>دقت موقعیت‌یابی:</strong> <span id="acc">در حال بارگذاری...</span> متر</p>
+        <div id="locationData">
+            <!-- داده‌ها با JavaScript پر می‌شوند -->
         </div>
         
         <div class="map-buttons">
-            <a id="googleMapLink" class="map-link" target="_blank">
-                <span style="margin-left: 8px;">🗺️</span> مشاهده در Google Maps
+            <a href="index.html" class="map-link back-button">
+                ↩️ بازگشت به صفحه اصلی
             </a>
-            <br>
-            <a id="openStreetMapLink" class="map-link" target="_blank" style="background-color: #7CB342;">
-                <span style="margin-left: 8px;">🌍</span> مشاهده در OpenStreetMap
-            </a>
-            <br>
-            <a class="map-link back-button" href="index.html">
-                <span style="margin-left: 8px;">↩️</span> بازگشت به صفحه اصلی
-            </a>
-        </div>
-        
-        <!-- اطلاعات اضافی -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #ddd; color: #666; font-size: 14px;">
-            <p>📍 موقعیت شما با دقت تقریبی <span id="acc2"></span> متر مشخص شده است</p>
-            <p>⏱️ زمان دریافت موقعیت: <span id="timestamp"></span></p>
         </div>
     </div>
 
@@ -105,53 +102,77 @@
         const lat = localStorage.getItem("userLatitude");
         const lng = localStorage.getItem("userLongitude");
         const acc = localStorage.getItem("userAccuracy");
+        const timestamp = localStorage.getItem("userTimestamp");
         
-        // نمایش داده‌ها
-        document.getElementById("lat").textContent = lat ? parseFloat(lat).toFixed(6) : "نامشخص";
-        document.getElementById("lng").textContent = lng ? parseFloat(lng).toFixed(6) : "نامشخص";
-        document.getElementById("acc").textContent = acc ? Math.round(acc) : "نامشخص";
-        document.getElementById("acc2").textContent = acc ? Math.round(acc) : "نامشخص";
+        const locationDataEl = document.getElementById("locationData");
         
-        // زمان فعلی
-        const now = new Date();
-        document.getElementById("timestamp").textContent = now.toLocaleString('fa-IR');
-        
-        // ایجاد لینک‌های نقشه
+        // بررسی اگر موقعیتی ذخیره شده است
         if(lat && lng) {
-            // Google Maps
-            const googleMapLink = document.getElementById("googleMapLink");
-            googleMapLink.href = `https://www.google.com/maps?q=${lat},${lng}`;
+            locationDataEl.innerHTML = `
+                <h3>مختصات دقیق:</h3>
+                <div class="coordinates">
+                    <p><strong>عرض جغرافیایی (Latitude):</strong> ${parseFloat(lat).toFixed(6)}</p>
+                    <p><strong>طول جغرافیایی (Longitude):</strong> ${parseFloat(lng).toFixed(6)}</p>
+                    <p><strong>دقت موقعیت‌یابی:</strong> ${acc ? Math.round(acc) : 'نامشخص'} متر</p>
+                </div>
+                
+                <div class="map-buttons">
+                    <a href="https://www.google.com/maps?q=${lat},${lng}" class="map-link" target="_blank">
+                        🗺️ مشاهده در Google Maps
+                    </a>
+                    <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}" 
+                       class="map-link" target="_blank" style="background-color: #7CB342;">
+                        🌍 مشاهده در OpenStreetMap
+                    </a>
+                </div>
+                
+                ${timestamp ? `<div class="timestamp">🕒 زمان دریافت: ${new Date(timestamp).toLocaleString('fa-IR')}</div>` : ''}
+            `;
+        } else {
+            // اگر موقعیتی ذخیره نشده است
+            locationDataEl.innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ داده‌ای موقعیتی یافت نشد</h3>
+                    <p>شما هنوز موقعیت خود را دریافت نکرده‌اید یا داده‌ها پاک شده‌اند.</p>
+                    <p>لطفاً به صفحه اصلی بازگشته و موقعیت خود را دریافت کنید.</p>
+                </div>
+            `;
             
-            // OpenStreetMap
-            const osmLink = document.getElementById("openStreetMapLink");
-            osmLink.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=15/${lat}/${lng}`;
+            // مخفی کردن آیکون موقعیت
+            document.querySelector('.location-icon').style.display = 'none';
         }
         
-        // اگر داده‌ای وجود ندارد، کاربر را به صفحه اصلی برگردان
-        if(!lat || !lng) {
-            setTimeout(() => {
-                alert("داده‌ای موقعیتی یافت نشد. لطفاً مجدداً موقعیت خود را مشخص کنید.");
-                window.location.href = "index.html";
-            }, 1000);
-        }
-        
-        // ذخیره تاریخچه (اختیاری)
-        function saveToHistory(lat, lng) {
-            const history = JSON.parse(localStorage.getItem('locationHistory') || '[]');
-            history.push({
-                lat: lat,
-                lng: lng,
-                time: new Date().toISOString(),
-                accuracy: acc
-            });
-            // فقط 10 موقعیت آخر را نگه دار
-            if(history.length > 10) history.shift();
-            localStorage.setItem('locationHistory', JSON.stringify(history));
-        }
-        
-        // ذخیره در تاریخچه
+        // اضافه کردن قابلیت کپی کردن مختصات
         if(lat && lng) {
-            saveToHistory(lat, lng);
+            const copyButton = document.createElement('button');
+            copyButton.innerHTML = '📋 کپی کردن مختصات';
+            copyButton.style.cssText = `
+                margin: 15px;
+                padding: 10px 20px;
+                background-color: #9C27B0;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            `;
+            copyButton.onmouseover = function() { this.style.backgroundColor = '#7B1FA2'; };
+            copyButton.onmouseout = function() { this.style.backgroundColor = '#9C27B0'; };
+            copyButton.onclick = function() {
+                const coords = `${lat}, ${lng}`;
+                navigator.clipboard.writeText(coords).then(() => {
+                    const originalText = copyButton.innerHTML;
+                    copyButton.innerHTML = '✅ کپی شد!';
+                    copyButton.style.backgroundColor = '#4CAF50';
+                    setTimeout(() => {
+                        copyButton.innerHTML = originalText;
+                        copyButton.style.backgroundColor = '#9C27B0';
+                    }, 2000);
+                });
+            };
+            
+            document.querySelector('.map-buttons').prepend(copyButton);
         }
     </script>
 </body>
