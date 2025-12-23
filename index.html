@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود به صفحه اصلی</title>
+    <title>دریافت موقعیت</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -29,15 +29,67 @@
             margin-top: 20px;
             color: #555;
         }
+        .history-count {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
-    <h1>لطفا تا لحظه ورود به صفحه اصلی در این صفحه بمانید</h1>
-    <p>برای ورود روی دکمه زیر کلیک کنید</p>
-    <button onclick="getLocation()">ورود به سایت</button>
+    <h1>خوش آمدید! 🌍</h1>
+    <p>برای نمایش موقعیت شما، دکمه زیر را کلیک کنید.</p>
+    
+    <div class="history-count">
+        <p>📍 تعداد موقعیت‌های ذخیره شده: <span id="historyCount">0</span></p>
+    </div>
+    
+    <button onclick="getLocation()">دریافت موقعیت من</button>
     <p id="message"></p>
 
     <script>
+        // نمایش تعداد موقعیت‌های ذخیره شده
+        function updateHistoryCount() {
+            const history = getLocationHistory();
+            document.getElementById("historyCount").textContent = history.length;
+        }
+        
+        // دریافت لیست موقعیت‌های ذخیره شده
+        function getLocationHistory() {
+            const history = localStorage.getItem("locationHistory");
+            return history ? JSON.parse(history) : [];
+        }
+        
+        // ذخیره موقعیت جدید در لیست
+        function saveLocationToHistory(latitude, longitude, accuracy) {
+            const history = getLocationHistory();
+            
+            // ایجاد رکورد جدید
+            const newRecord = {
+                id: Date.now(), // استفاده از timestamp به عنوان ID
+                latitude: latitude,
+                longitude: longitude,
+                accuracy: accuracy,
+                timestamp: new Date().toLocaleString('fa-IR'),
+                date: new Date().toISOString()
+            };
+            
+            // اضافه کردن به ابتدای لیست (جدیدترین اول)
+            history.unshift(newRecord);
+            
+            // محدود کردن تعداد رکوردها (اختیاری، مثلاً آخرین 50 مورد)
+            if (history.length > 50) {
+                history.pop(); // حذف قدیمی‌ترین
+            }
+            
+            // ذخیره در localStorage
+            localStorage.setItem("locationHistory", JSON.stringify(history));
+            
+            return newRecord;
+        }
+        
         async function getLocation() {
             const message = document.getElementById("message");
             
@@ -46,84 +98,58 @@
                 return;
             }
             
-            // 1. ریست خودکار مجوز موقعیت
-            await resetGeolocationPermission();
+            message.innerHTML = "در حال دریافت موقعیت... لطفاً صبر کنید.";
             
-            message.innerHTML = "در حال ورود... لطفاً مجوز را تأیید کنید.";
-            
-            // 2. دریافت موقعیت جدید
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    // ذخیره موقعیت در localStorage
-                    localStorage.setItem("userLatitude", position.coords.latitude);
-                    localStorage.setItem("userLongitude", position.coords.longitude);
-                    localStorage.setItem("userAccuracy", position.coords.accuracy);
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const acc = position.coords.accuracy;
                     
-                    // هدایت به صفحه نمایش موقعیت
-                    window.location.href = "show-location.html";
+                    // 1. ذخیره موقعیت جاری
+                    localStorage.setItem("userLatitude", lat);
+                    localStorage.setItem("userLongitude", lng);
+                    localStorage.setItem("userAccuracy", acc);
+                    
+                    // 2. اضافه کردن به تاریخچه
+                    saveLocationToHistory(lat, lng, acc);
+                    
+                    // 3. به‌روزرسانی شمارنده
+                    updateHistoryCount();
+                    
+                    // 4. انتقال به صفحه نمایش
+                    message.innerHTML = "✅ موقعیت دریافت شد! در حال انتقال...";
+                    setTimeout(() => {
+                        window.location.href = "show-location.html";
+                    }, 1000);
                 },
                 function(error) {
                     let errorMessage;
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
+                            errorMessage = "دسترسی به موقعیت رد شد. لطفاً مجوز را در مرورگر فعال کنید.";
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
+                            errorMessage = "اطلاعات موقعیت در دسترس نیست.";
                             break;
                         case error.TIMEOUT:
-                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
+                            errorMessage = "دریافت موقعیت زمان‌بر شد.";
                             break;
                         default:
-                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
+                            errorMessage = "خطای ناشناخته رخ داد.";
                     }
                     message.innerHTML = "خطا: " + errorMessage;
                 },
                 {
                     enableHighAccuracy: true,
                     timeout: 10000,
-                    maximumAge: 0 // همیشه موقعیت جدید بگیر
+                    maximumAge: 0
                 }
             );
         }
         
-        // تابع ریست خودکار مجوز موقعیت
-        async function resetGeolocationPermission() {
-            const message = document.getElementById("message");
-            message.innerHTML = "در حال ورود...";
-            
-            try {
-                // ریست مجوز موقعیت‌یابی (برای مرورگرهای مدرن)
-                if ('permissions' in navigator) {
-                    // 1. تلاش برای revoke permission
-                    if ('revoke' in navigator.permissions) {
-                        await navigator.permissions.revoke({ name: 'geolocation' });
-                        console.log("✅ مجوز موقعیت‌یابی ریست شد");
-                    }
-                    
-                    // 2. ریست کردن به حالت اولیه
-                    const permission = await navigator.permissions.query({ name: 'geolocation' });
-                    console.log("وضعیت مجوز پس از ریست:", permission.state);
-                }
-                
-                // پاک کردن موقعیت قبلی از localStorage (اختیاری)
-                localStorage.removeItem("userLatitude");
-                localStorage.removeItem("userLongitude");
-                localStorage.removeItem("userAccuracy");
-                
-                // ایجاد تاخیر برای اطمینان از ریست
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-            } catch (error) {
-                console.log("خطا در ریست مجوز:", error);
-                // در صورت خطا، ادامه بده
-            }
-        }
-        
-        // راهنمای ساده: وقتی صفحه لود شد
-        window.onload = function() {
-            console.log("آماده دریافت موقعیت...");
-        };
+        // هنگام لود صفحه، شمارنده را به‌روز کن
+        window.onload = updateHistoryCount;
     </script>
 </body>
 </html>
