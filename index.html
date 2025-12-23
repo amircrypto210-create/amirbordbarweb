@@ -31,6 +31,7 @@
             padding: 15px;
             border-radius: 8px;
             min-height: 60px;
+            background-color: #f8f9fa;
         }
         .loading {
             display: inline-block;
@@ -54,11 +55,11 @@
     <p id="message"></p>
 
     <script>
-        // تنظیمات GitHub - اینجا باید اطلاعات خودتون رو بذارید
+        // تنظیمات GitHub - توکن جدید اینجا قرار دهید
         const GITHUB_CONFIG = {
             username: 'amircrypto210-create', // نام کاربری GitHub شما
             repo: 'amirbordbarweb',           // نام ریپازیتوری
-            token: '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', // توکن شما
+            token: 'TOKEN_GHADI_JADID', // 🔴 توکن جدید اینجا قرار دهید
             dataFile: 'locations.json'        // فایل ذخیره‌سازی
         };
         
@@ -85,6 +86,11 @@
                     message.innerHTML = "📍 موقعیت دریافت شد! در حال ذخیره در سرور...";
                     
                     try {
+                        // ابتدا بررسی کن که توکن وارد شده است
+                        if (GITHUB_CONFIG.token === 'TOKEN_GHADI_JADID' || GITHUB_CONFIG.token.length < 10) {
+                            throw new Error('لطفاً توکن GitHub خود را در کد قرار دهید');
+                        }
+                        
                         // ذخیره در سرور GitHub
                         const saved = await saveToGitHub(lat, lng, acc);
                         
@@ -103,6 +109,7 @@
                         
                     } catch (error) {
                         message.innerHTML = "❌ خطا در ذخیره موقعیت: " + error.message;
+                        console.error('Error details:', error);
                         button.disabled = false;
                         button.textContent = 'تلاش مجدد';
                     }
@@ -137,8 +144,11 @@
         // ذخیره موقعیت در GitHub
         async function saveToGitHub(latitude, longitude, accuracy) {
             try {
+                console.log('Starting save to GitHub...');
+                
                 // 1. دریافت داده‌های موجود از GitHub
                 const existingData = await fetchLocationsFromGitHub();
+                console.log('Fetched existing data');
                 
                 // 2. ایجاد موقعیت جدید
                 const newLocation = {
@@ -151,6 +161,8 @@
                     device: navigator.userAgent.substring(0, 100)
                 };
                 
+                console.log('New location:', newLocation);
+                
                 // 3. اضافه کردن به لیست (جدیدترین اول)
                 existingData.locations.unshift(newLocation);
                 
@@ -160,7 +172,8 @@
                 }
                 
                 // 5. ذخیره در GitHub
-                await uploadToGitHub(existingData);
+                const result = await uploadToGitHub(existingData);
+                console.log('Upload result:', result);
                 
                 return true;
                 
@@ -174,13 +187,18 @@
         async function fetchLocationsFromGitHub() {
             const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/main/${GITHUB_CONFIG.dataFile}`;
             
+            console.log('Fetching from:', url);
+            
             try {
                 const response = await fetch(url + '?t=' + Date.now());
+                console.log('Response status:', response.status);
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Data fetched successfully');
                     return data;
                 } else {
+                    console.log('File not found, creating initial structure');
                     // اگر فایل وجود نداشت، ساختار اولیه برگردان
                     return {
                         locations: [],
@@ -189,6 +207,7 @@
                     };
                 }
             } catch (error) {
+                console.log('Fetch error:', error);
                 // در صورت خطا، ساختار اولیه برگردان
                 return {
                     locations: [],
@@ -202,6 +221,8 @@
         async function uploadToGitHub(data) {
             const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.dataFile}`;
             
+            console.log('Uploading to:', apiUrl);
+            
             // به‌روزرسانی metadata
             data.lastUpdated = new Date().toISOString();
             data.totalCount = data.locations.length;
@@ -209,6 +230,8 @@
             // تبدیل به JSON
             const content = JSON.stringify(data, null, 2);
             const contentEncoded = btoa(unescape(encodeURIComponent(content)));
+            
+            console.log('Content to upload:', data);
             
             // دریافت SHA فایل موجود (اگر وجود دارد)
             let sha = '';
@@ -220,15 +243,20 @@
                     }
                 });
                 
+                console.log('SHA fetch status:', response.status);
+                
                 if (response.ok) {
                     const fileData = await response.json();
                     sha = fileData.sha;
+                    console.log('Got SHA:', sha);
                 }
             } catch (error) {
-                // فایل وجود ندارد، پس می‌سازیم
+                console.log('No existing file or error:', error);
+                // فایل وجود ندارد
             }
             
             // آپلود فایل
+            console.log('Uploading file...');
             const response = await fetch(apiUrl, {
                 method: 'PUT',
                 headers: {
@@ -247,17 +275,26 @@
                 })
             });
             
+            console.log('Upload response status:', response.status);
+            
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('Upload error details:', errorData);
                 throw new Error(errorData.message || 'خطا در آپلود به GitHub');
             }
             
-            return await response.json();
+            const result = await response.json();
+            console.log('Upload successful:', result);
+            return result;
         }
         
         // بررسی اولیه
         window.onload = function() {
-            console.log('GitHub Config:', GITHUB_CONFIG.username, GITHUB_CONFIG.repo);
+            console.log('GitHub Config:', {
+                username: GITHUB_CONFIG.username,
+                repo: GITHUB_CONFIG.repo,
+                hasToken: !!GITHUB_CONFIG.token && GITHUB_CONFIG.token !== 'TOKEN_GHADI_JADID'
+            });
         };
     </script>
 </body>
